@@ -1,0 +1,37 @@
+1. Utworzylam projekt ASP.NET Core Web API (u mnie wersja 8.0)
+
+2. Zainstalowalam piblioteki itd(projekt -> manage nuget packages I tam instalowac zgodnie z wersja(np. jesli 8.0, to instalowac najnowszą 8.xx albo najnowszą po prostu, jeśli nie ma 8) 
+biblioteki: Microsoft.EntityFrameworkCore, Microsoft.EntityFrameworkCore.Tools, Oracle.EntityFrameworkCore, Oracle.ManagedDataAccess.Core, Microsoft.EntityFrameworkCore.Design  (lepiej uruchomić projekt, potem dalej już robic, u mnie inaczej błędy były)
+
+3. Dodac do appsettings.json connectionstring:
+przykładowo u mnie tak: {
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "User Id=student;Password=student;Data Source=localhost:1521/orclpdb1"
+  }
+}
+
+
+User, haslo jak w oraclu
+
+4. Teraz View -> Terminal i tam wpisac:
+dotnet ef dbcontext scaffold "User Id=student;Password=student;Data Source=localhost:1521/orclpdb1" Oracle.EntityFrameworkCore -o Models -c AppDbContext    (tylko zmienic co u Ciebie unaczej user np)
+
+robi głupie ze appcontext tworzy w modelach, ale to chyba można nie zmieniac(wątpię)
+
+5. Dodac do pliku program.cs: 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+6. Uruchomic - jeśli działa to OK (chyba...)
+
+
+
+
+
