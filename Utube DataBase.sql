@@ -499,12 +499,16 @@ END;
 
 -- PROCEDURES
 
-CREATE OR REPLACE PROCEDURE sp_add_movie( p_title VARCHAR2, p_description CLOB, p_release_date DATE )
+CREATE OR REPLACE PROCEDURE sp_add_movie(
+    p_title VARCHAR2,
+    p_description CLOB,
+    p_release_date DATE
+)
 IS
 BEGIN
-    INSERT INTO Movie ( Title, MovieDescription, ReleaseDate )
-    VALUES ( p_title, p_description, p_release_date );
-    
+    INSERT INTO Movie (Id, Title, MovieDescription, ReleaseDate)
+    VALUES (seq_movie.NEXTVAL, p_title, p_description, p_release_date);
+
     COMMIT;
 END;
 /
