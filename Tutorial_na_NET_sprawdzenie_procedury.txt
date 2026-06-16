@@ -1,0 +1,111 @@
+Po podłączeniu bazy do projektu w .NET utworzyłam folder "Services" o nazwie MovieService. (prawy przycisk myszy na projekt, potem add i folder, potem tak samo na ten stworzony folder i wybrać "class") Tam wstawić ten kod:
+using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
+using SBDUtube.Models;
+
+namespace SBDUtube.Services
+{
+    public class MovieService
+    {
+        private readonly AppDbContext _context;
+
+        public MovieService(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // PROCEDURA (Oracle)
+        public async Task AddMovieAsync(string title, string description, DateTime releaseDate)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "BEGIN sp_add_movie(:p_title, :p_description, :p_release_date); END;",
+                new OracleParameter("p_title", title),
+                new OracleParameter("p_description", description),
+                new OracleParameter("p_release_date", releaseDate)
+            );
+        }
+
+        public async Task<List<Movie>> GetActiveMoviesAsync()
+        {
+            return await _context.Movies
+                .FromSqlInterpolated($"SELECT * FROM Movie WHERE Status = 'ACTIVE'")
+                .ToListAsync();
+        }
+    }
+}
+
+
+potem dodac do folderu "Controllers" plik o nazwie MovieController i dodac tam ten kod(Można wybraz add controller albo class):
+using Microsoft.AspNetCore.Mvc;
+using SBDUtube.Services;
+
+namespace SBDUtube.Controllers
+{
+    [ApiController]
+    [Route("api/movies")]
+    public class MovieController : ControllerBase
+    {
+        private readonly MovieService _service;
+
+        public MovieController(MovieService service)
+        {
+            _service = service;
+        }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddMovie()
+        {
+            await _service.AddMovieAsync(
+                "Test Movie",
+                "Opis filmu",
+                DateTime.Now
+            );
+
+            return Ok("Movie added via procedure");
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActive()
+        {
+            var result = await _service.GetActiveMoviesAsync();
+            return Ok(result);
+        }
+    }
+}
+
+
+I ostatnie to dodac do pliku program.cs service.
+U mnie tak wygląda program.cs:
+using Microsoft.EntityFrameworkCore;
+using SBDUtube.Models;
+using SBDUtube.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<MovieService>();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
