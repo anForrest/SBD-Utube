@@ -1,11 +1,10 @@
-//bloki anonimowe zapełniajace tabele przykładowymi danymi
+-- bloki anonimowe zapełniajace tabele przykładowymi danymi
 
-// Utworzenie 500 użytkowników
+-- Utworzenie 500 użytkowników i profili użytkowników
 BEGIN
     FOR i IN 1..500 LOOP
         INSERT INTO APPUSERS
         (
-            ID,
             USERNAME,
             EMAIL,
             PASSWORDHASH,
@@ -17,7 +16,6 @@ BEGIN
         )
         VALUES
         (
-            SEQ_APPUSERS.NEXTVAL,
             'user' || i,
             'user' || i || '@mail.com',
             'hash' || i,
@@ -27,18 +25,9 @@ BEGIN
             SYSDATE,
             SYSDATE
         );
-    END LOOP;
 
-    COMMIT;
-END;
-/
-
-// Utworzenie profilow użytkowników
-BEGIN
-    FOR i IN 1..500 LOOP
         INSERT INTO USERPROFILE
         (
-            ID,
             USERID,
             FIRSTNAME,
             LASTNAME,
@@ -47,7 +36,6 @@ BEGIN
         )
         VALUES
         (
-            SEQ_USERPROFILE.NEXTVAL,
             i,
             'Name' || i,
             'Surname' || i,
@@ -60,17 +48,17 @@ BEGIN
 END;
 /
 
-// Kategorie filmów
+
+
+-- Kategorie filmów
 BEGIN
     FOR i IN 1..500 LOOP
         INSERT INTO CATEGORYTYPE
         (
-            ID,
             CategoryName
         )
         VALUES
         (
-            seq_categorytype.NEXTVAL,
             'CategoryName' || i
         );
     END LOOP;
@@ -79,12 +67,11 @@ BEGIN
 END;
 /
 
-// Filmy
+-- Filmy
 BEGIN
     FOR i IN 1..900 LOOP
         INSERT INTO MOVIE
         (
-            ID,
             TITLE,
             MOVIEDESCRIPTION,
             RELEASEDATE,
@@ -97,7 +84,6 @@ BEGIN
         )
         VALUES
         (
-            SEQ_MOVIE.NEXTVAL,
             'Film ' || i,
             'Opis filmu ' || i,
             SYSDATE - DBMS_RANDOM.VALUE(0,1000),
@@ -114,22 +100,20 @@ BEGIN
 END;
 /
 
-// Oceny
+-- Oceny
 BEGIN
     FOR i IN 1..1000 LOOP
         INSERT INTO RATING
         (
-            ID,
             USERID,
             MOVIEID,
             RATE
         )
         VALUES
         (
-            SEQ_RATING.NEXTVAL,
-            MOD(i,10)+1,
-            MOD(i,20)+1,
-            TRUNC(DBMS_RANDOM.VALUE(1,6))
+            MOD(i, 501),
+            MOD(i, 901),
+            TRUNC(DBMS_RANDOM.VALUE(1,11))
         );
     END LOOP;
 
@@ -137,12 +121,11 @@ BEGIN
 END;
 /
 
-// Komentarze
+-- Komentarze
 BEGIN
     FOR i IN 1..600 LOOP
         INSERT INTO COMMENTS
         (
-            ID,
             USERID,
             MOVIEID,
             COMMENTCONTENT,
@@ -151,9 +134,8 @@ BEGIN
         )
         VALUES
         (
-            SEQ_COMMENT.NEXTVAL,
-            MOD(i,10)+1,
-            MOD(i,20)+1,
+            MOD(i,501),
+            MOD(i,901),
             'Komentarz nr ' || i,
             SYSDATE,
             SYSDATE
@@ -164,32 +146,32 @@ BEGIN
 END;
 /
 
-// Playlist
+-- Playlist
 BEGIN
     FOR i IN 1..500 LOOP
-        INSERT INTO Playlist (Id, UserId, Title, CreatedAt)
-        VALUES (seq_playlist.NEXTVAL, TRUNC(DBMS_RANDOM.VALUE(1, 501)), 
-                'Playlist ' || i || 'My favorite movies', 
-                SYSDATE - DBMS_RANDOM.VALUE(0, 365));
+        INSERT INTO PLAYLIST (UserId, Title, CreatedAt)
+        VALUES (
+                TRUNC(DBMS_RANDOM.VALUE(1, 501)), 
+                'Playlista ' || i, 
+                SYSDATE - DBMS_RANDOM.VALUE(0, 365)
+                );
     END LOOP;
     
     COMMIT;
 END;
 /
 
-// Historia ogłądania
+-- Historia oglądania
 BEGIN
     FOR i IN 1..1000 LOOP
         INSERT INTO WATCHHISTORY
         (
-            ID,
             USERID,
             MOVIEID,
             WATCHEDAT
         )
         VALUES
         (
-            SEQ_WATCHHISTORY.NEXTVAL,
             MOD(i,10)+1,
             MOD(i,20)+1,
             SYSDATE - DBMS_RANDOM.VALUE(0,365)
@@ -200,7 +182,7 @@ BEGIN
 END;
 /
 
-// Movie i Category
+-- Movie i CategoryType
 DECLARE
     TYPE t_cat_ids IS TABLE OF CategoryType.Id%TYPE INDEX BY PLS_INTEGER;
     v_cat_ids t_cat_ids;
