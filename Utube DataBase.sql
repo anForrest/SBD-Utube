@@ -1,11 +1,3 @@
--- Utube - jeszcze się nie kompiluje wszystko ale już prawie :'<
-
--- niektóre nazwy są zmienione np User -> AppUser, Category -> CategoryType itp
--- bo to nazwy zastrzeżone i nie można ich było użyć
-
-
-
--- do stworzenia bazy danych:
 
 -- SEQUENCES - do automatycznego generowania kolejnych numerów ID tabel
 
@@ -301,8 +293,7 @@ END;
 /
 
 
-
--- EXTERNAL DESCRIPTION -- ?? czy jest potrzebne ??
+-- EXTERNAL DESCRIPTION 
 
 CREATE TABLE ExternalDescription (
     Id NUMBER PRIMARY KEY,
@@ -525,36 +516,6 @@ BEGIN
 END;
 /
 
-
--- ROLES
-
-CREATE ROLE UTUBE_ADMIN;
-CREATE ROLE UTUBE_USER;
-
--- ADMIN PERMISSIONS
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON AppUsers TO UTUBE_ADMIN;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Movie TO UTUBE_ADMIN;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Comments TO UTUBE_ADMIN;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Rating TO UTUBE_ADMIN;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Playlist TO UTUBE_ADMIN;
-
--- USER PERMISSIONS 
--- usuwanie i edytowanie dla USER w ASP.NET albo dodać poprzez procedury
-
-GRANT SELECT ON Movie TO UTUBE_USER;
-GRANT SELECT, INSERT ON Comments TO UTUBE_USER;
-GRANT SELECT, INSERT ON Rating TO UTUBE_USER;
-GRANT SELECT, INSERT ON Playlist TO UTUBE_USER;
-
-
--- COMMIT;
-
-
--- TODO:
--- napisać bloki anonimowe zapełniajace tabele przykładowymi danymi
-
--- 
-
+COMMIT;
 
 
