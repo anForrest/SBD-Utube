@@ -2,7 +2,33 @@ CREATE USER app_admin IDENTIFIED BY admin123;
 CREATE USER app_identity IDENTIFIED BY app123;
 CREATE USER dev1 IDENTIFIED BY dev123;
 
+-- Możliwość zalogowania dla użytkowników
+GRANT CREATE SESSION TO app_admin;
+GRANT CREATE SESSION TO app_identity;
+GRANT CREATE SESSION TO dev1;
+
+-- ROLES
+
+CREATE ROLE utube_admin;
+CREATE ROLE utube_user;
 CREATE ROLE db_procexecutor;
+
+-- UTUBE_ADMIN PERMISSIONS
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON AppUsers TO utube_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Movie TO utube_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Comments TO utube_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Rating TO utube_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Playlist TO utube_admin;
+
+-- UTUBE_USER PERMISSIONS 
+-- usuwanie i edytowanie dla USER w ASP.NET albo dodać poprzez procedury
+
+GRANT SELECT ON Movie TO utube_user;
+GRANT SELECT, INSERT ON Comments TO utube_user;
+GRANT SELECT, INSERT ON Rating TO utube_user;
+GRANT SELECT, INSERT ON Playlist TO utube_user;
+
 
 -- procedury
 GRANT EXECUTE ON sp_add_movie TO db_procexecutor;
