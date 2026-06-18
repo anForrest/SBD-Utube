@@ -67,99 +67,79 @@ BEGIN
 END;
 /
 
+
 -- Filmy
 BEGIN
     FOR i IN 1..900 LOOP
-        INSERT INTO MOVIE
-        (
-            TITLE,
-            MOVIEDESCRIPTION,
-            RELEASEDATE,
-            THUMBNAILURL,
-            VIDEOURL,
-            STATUS,
-            ISDELETED,
-            CREATEDAT,
-            UPDATEDAT
-        )
-        VALUES
+
+        sp_add_movie
         (
             'Film ' || i,
             'Opis filmu ' || i,
             SYSDATE - DBMS_RANDOM.VALUE(0,1000),
             'https://picsum.photos/300/200?random=' || i,
             'https://www.youtube.com/watch?v=movie' || i,
-            'ACTIVE',
-            0,
-            SYSDATE,
-            SYSDATE
         );
+
     END LOOP;
 
     COMMIT;
 END;
 /
+
 
 -- Oceny
 BEGIN
     FOR i IN 1..1000 LOOP
-        INSERT INTO RATING
+
+        sp_add_rating
         (
-            USERID,
-            MOVIEID,
-            RATE
-        )
-        VALUES
-        (
-            MOD(i, 501),
-            MOD(i, 901),
+            MOD(i, 500)+1,
+            MOD(i, 900)+1,
             TRUNC(DBMS_RANDOM.VALUE(1,11))
         );
+
     END LOOP;
 
     COMMIT;
 END;
 /
+
 
 -- Komentarze
 BEGIN
     FOR i IN 1..600 LOOP
-        INSERT INTO COMMENTS
+
+        sp_add_comment
         (
-            USERID,
-            MOVIEID,
-            COMMENTCONTENT,
-            CREATEDAT,
-            UPDATEDAT
-        )
-        VALUES
-        (
-            MOD(i,501),
-            MOD(i,901),
-            'Komentarz nr ' || i,
-            SYSDATE,
-            SYSDATE
+            MOD(i,500)+1,
+            MOD(i,900)+1,
+            'Komentarz nr ' || i
         );
+
     END LOOP;
 
     COMMIT;
 END;
 /
 
+
 -- Playlist
 BEGIN
     FOR i IN 1..500 LOOP
-        INSERT INTO PLAYLIST (UserId, Title, CreatedAt)
-        VALUES (
-                TRUNC(DBMS_RANDOM.VALUE(1, 501)), 
-                'Playlista ' || i, 
-                SYSDATE - DBMS_RANDOM.VALUE(0, 365)
-                );
+
+        sp_create_playlist 
+        (
+            TRUNC(DBMS_RANDOM.VALUE(1, 501)), 
+            'Playlista ' || i
+        );
+
     END LOOP;
     
     COMMIT;
 END;
 /
+
 
 -- Historia oglądania
 BEGIN
@@ -181,6 +161,7 @@ BEGIN
     COMMIT;
 END;
 /
+
 
 -- Movie i CategoryType
 DECLARE
