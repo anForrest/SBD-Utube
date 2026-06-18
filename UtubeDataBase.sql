@@ -163,7 +163,7 @@ CREATE TABLE Rating (
     Id NUMBER PRIMARY KEY,
     UserId NUMBER NOT NULL,
     MovieId NUMBER NOT NULL,
-    Rate NUMBER NOT NULL,
+    Rate NUMBER NOT NULL, 
 
     CONSTRAINT fk_rating_user
         FOREIGN KEY (UserId)
@@ -540,7 +540,6 @@ IS
 BEGIN
     INSERT INTO Movie
     (
-        Id,
         Title,
         MovieDescription,
         ReleaseDate,
@@ -549,7 +548,6 @@ BEGIN
     )
     VALUES
     (
-        seq_movie.NEXTVAL,
         p_title,
         p_description,
         p_release_date,
@@ -603,8 +601,8 @@ CREATE OR REPLACE PROCEDURE sp_create_playlist(
 )
 IS
 BEGIN
-    INSERT INTO Playlist (Id, UserId, Title)
-    VALUES (seq_playlist.NEXTVAL, p_user_id, p_title);
+    INSERT INTO Playlist (UserId, Title)
+    VALUES (p_user_id, p_title);
 
     COMMIT;
 END;
@@ -645,14 +643,12 @@ IS
 BEGIN
     INSERT INTO Comments
     (
-        Id,
         UserId,
         MovieId,
         CommentContent
     )
     VALUES
     (
-        seq_comment.NEXTVAL,
         p_user_id,
         p_movie_id,
         p_content
