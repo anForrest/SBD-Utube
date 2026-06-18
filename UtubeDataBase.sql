@@ -487,30 +487,239 @@ BEGIN
 END;
 /
 
+ -- Logowanie
+CREATE OR REPLACE FUNCTION fn_login_user(
+    p_login VARCHAR2,
+    p_password VARCHAR2
+)
+RETURN NUMBER
+IS
+    v_id NUMBER;
+BEGIN
+    SELECT Id
+    INTO v_id
+    FROM AppUsers
+    WHERE (Username = p_login OR Email = p_login)
+      AND PasswordHash = p_password
+      AND IsBlocked = 0;
+
+    RETURN v_id;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 0;
+END;
+/
+
+-- Rola uzytkownika
+CREATE OR REPLACE FUNCTION fn_get_user_role(
+    p_user_id NUMBER
+)
+RETURN VARCHAR2
+IS
+    v_role VARCHAR2(20);
+BEGIN
+    SELECT UserRole
+    INTO v_role
+    FROM AppUsers
+    WHERE Id = p_user_id;
+
+    RETURN v_role;
+END;
+/
 
 -- PROCEDURES
-
 CREATE OR REPLACE PROCEDURE sp_add_movie(
     p_title VARCHAR2,
     p_description CLOB,
-    p_release_date DATE
+    p_release_date DATE,
+    p_thumbnail VARCHAR2,
+    p_video VARCHAR2
 )
 IS
 BEGIN
-    INSERT INTO Movie (Id, Title, MovieDescription, ReleaseDate)
-    VALUES (seq_movie.NEXTVAL, p_title, p_description, p_release_date);
+    INSERT INTO Movie
+    (
+        Id,
+        Title,
+        MovieDescription,
+        ReleaseDate,
+        ThumbnailUrl,
+        VideoUrl
+    )
+    VALUES
+    (
+        seq_movie.NEXTVAL,
+        p_title,
+        p_description,
+        p_release_date,
+        p_thumbnail,
+        p_video
+    );
 
     COMMIT;
 END;
 /
 
---
-
-CREATE OR REPLACE PROCEDURE sp_create_playlist( p_user_id NUMBER, p_name VARCHAR2 )
+CREATE OR REPLACE PROCEDURE sp_update_movie(
+    p_movie_id NUMBER,
+    p_title VARCHAR2,
+    p_description CLOB,
+    p_release_date DATE,
+    p_thumbnail VARCHAR2,
+    p_video VARCHAR2
+)
 IS
 BEGIN
-    INSERT INTO Playlist ( UserId, Title )
-    VALUES ( p_user_id, p_name );
+    UPDATE Movie
+    SET
+        Title = p_title,
+        MovieDescription = p_description,
+        ReleaseDate = p_release_date,
+        ThumbnailUrl = p_thumbnail,
+        VideoUrl = p_video,
+        UpdatedAt = SYSDATE
+    WHERE Id = p_movie_id;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_delete_movie(
+    p_movie_id NUMBER
+)
+IS
+BEGIN
+    DELETE FROM Movie
+    WHERE Id = p_movie_id;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_create_playlist(
+    p_user_id NUMBER,
+    p_title VARCHAR2
+)
+IS
+BEGIN
+    INSERT INTO Playlist (Id, UserId, Title)
+    VALUES (seq_playlist.NEXTVAL, p_user_id, p_title);
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_update_playlist(
+    p_playlist_id NUMBER,
+    p_title VARCHAR2
+)
+IS
+BEGIN
+    UPDATE Playlist
+    SET Title = p_title
+    WHERE Id = p_playlist_id;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_delete_playlist(
+    p_playlist_id NUMBER
+)
+IS
+BEGIN
+    DELETE FROM Playlist
+    WHERE Id = p_playlist_id;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_add_comment(
+    p_user_id NUMBER,
+    p_movie_id NUMBER,
+    p_content CLOB
+)
+IS
+BEGIN
+    INSERT INTO Comments
+    (
+        Id,
+        UserId,
+        MovieId,
+        CommentContent
+    )
+    VALUES
+    (
+        seq_comment.NEXTVAL,
+        p_user_id,
+        p_movie_id,
+        p_content
+    );
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_update_comment(
+    p_comment_id NUMBER,
+    p_content CLOB
+)
+IS
+BEGIN
+    UPDATE Comments
+    SET
+        CommentContent = p_content,
+        UpdatedAt = SYSDATE
+    WHERE Id = p_comment_id;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_delete_comment(
+    p_comment_id NUMBER
+)
+IS
+BEGIN
+    DELETE FROM Comments
+    WHERE Id = p_comment_id;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_add_movie_to_playlist(
+    p_playlist_id NUMBER,
+    p_movie_id NUMBER
+)
+IS
+BEGIN
+    INSERT INTO PlaylistMovie
+    (
+        PlaylistId,
+        MovieId
+    )
+    VALUES
+    (
+        p_playlist_id,
+        p_movie_id
+    );
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE sp_remove_movie_from_playlist(
+    p_playlist_id NUMBER,
+    p_movie_id NUMBER
+)
+IS
+BEGIN
+    DELETE FROM PlaylistMovie
+    WHERE PlaylistId = p_playlist_id
+      AND MovieId = p_movie_id;
 
     COMMIT;
 END;
